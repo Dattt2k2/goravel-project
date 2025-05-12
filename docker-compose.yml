@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: goravel-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DB_CONNECTION: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: goravel
+      DB_USERNAME: postgres
+      DB_PASSWORD: secret
+    depends_on:
+      - postgres
+    networks:
+      - goravel-network
+
+  postgres:
+    image: postgres:14
+    container_name: goravel-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: goravel
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - goravel-network
+  
+  mongodb:
+    image: mongo:latest
+    container_name: goravel-mongo 
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - goravel-network
+
+networks:
+  goravel-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mongodb-data:
